@@ -4,6 +4,8 @@
 base_dir="$1"
 debug=true
 verbose=true
+shopt -s dotglob
+
 
 #Recursive function that walks the dir and processes files inside of it
 #usage: cur_dir
@@ -26,8 +28,9 @@ for i in *; do  #for each file in current directory
 			echo "$abs_dir is empty"
 		fi
 	else
+#		abs_path=$(readlink -f -- "$i")		#absolute path to file
 		abs_path=$(readlink -e -- "$i")		#absolute path to file
-#		find_dupl "$abs_path" "$base_dir"
+		find_dupl "$abs_path" "$base_dir"
 	fi
 cd "$1"
 done
@@ -52,8 +55,9 @@ function find_dupl {
 				cd "$2"
 			fi
 		else
-			abs_file_path=$(readlink -e -- "$i")
-			diff "$1" "$abs_file_path" >> /dev/null
+#	abs_file_path=$(readlink -e -- "$i")
+			abs_file_path=$(readlink -f -- "$i")
+			diff -- "$1" "$abs_file_path" >> /dev/null
 			if [ $? -eq 0 -a ! "$1" -ef "$i" ]
 			then
 				process_dupl_file "$abs_file_path" # readlink -f "${i}"
